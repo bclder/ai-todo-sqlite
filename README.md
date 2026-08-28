@@ -1,4 +1,4 @@
-\# AI 待办事项管理器
+# AI 待办事项管理器
 
 
 
@@ -10,47 +10,47 @@
 
 
 
-\## 主要功能
+## 主要功能
 
 
 
-\- 添加待办事项
+- 添加待办事项
 
-\- 查询全部待办
+- 查询全部待办
 
-\- 查询未完成待办
+- 查询未完成待办
 
-\- 修改待办内容和截止日期
+- 修改待办内容和截止日期
 
-\- 标记待办为已完成
+- 标记待办为已完成
 
-\- 删除待办事项
+- 删除待办事项
 
-\- 使用 SQLite 保存本地数据
+- 使用 SQLite 保存本地数据
 
-\- 使用 AI 工具调用理解用户指令
-
-
-
-\## 项目结构
+- 使用 AI 工具调用理解用户指令
 
 
 
-\- `main.py`：程序入口和 AI 对话流程
-
-\- `database.py`：SQLite 数据库操作
-
-\- `tool\_config.py`：AI 工具定义和调用配置
-
-\- `requirements.txt`：项目第三方依赖
-
-\- `.gitignore`：不上传到 Git 的本地文件
-
-\- `README.md`：项目介绍和使用说明
+## 项目结构
 
 
 
-\## 安装依赖
+- `main.py`：程序入口和 AI 对话流程
+
+- `database.py`：SQLite 数据库操作
+
+- `tool_config.py`：AI 工具定义和调用配置
+
+- `requirements.txt`：项目第三方依赖
+
+- `.gitignore`：不上传到 Git 的本地文件
+
+- `README.md`：项目介绍和使用说明
+
+
+
+## 安装依赖
 
 
 
@@ -62,7 +62,7 @@ python -m pip install -r requirements.txt
 
 
 
-\## 配置 API Key
+## 配置 API Key
 
 
 
@@ -72,13 +72,13 @@ python -m pip install -r requirements.txt
 
 ```bat
 
-set DEEPSEEK\_API\_KEY=你的API密钥
+set DEEPSEEK_API_KEY=你的API密钥
 
 ```
 
 
 
-\## 运行项目
+## 运行项目
 
 
 
