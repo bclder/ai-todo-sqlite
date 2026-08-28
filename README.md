@@ -46,13 +46,15 @@
 
 \- `.gitignore`：不上传到 Git 的本地文件
 
+\- `README.md`：项目介绍和使用说明
+
 
 
 \## 安装依赖
 
 
 
-```bash
+```bat
 
 python -m pip install -r requirements.txt
 
@@ -76,15 +78,11 @@ set DEEPSEEK\_API\_KEY=你的API密钥
 
 
 
-不要把真实的 API Key 写入本文件。
-
-
-
 \## 运行项目
 
 
 
-```bash
+```bat
 
 python main.py
 
