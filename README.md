@@ -48,6 +48,7 @@
 
 - `README.md`：项目介绍和使用说明
 
+- `test_database.py`：数据库功能自动化测试
 
 
 ## 安装依赖
@@ -87,4 +88,14 @@ set DEEPSEEK_API_KEY=你的API密钥
 python main.py
 
 ```
+
+## 运行测试
+
+项目使用 Python 标准库中的 `unittest` 进行数据库自动化测试。
+
+```bat
+python -m unittest -v
+```
+
+测试使用临时数据库，不会修改本地的 `todos.db`。
 
