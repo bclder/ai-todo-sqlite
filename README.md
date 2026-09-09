@@ -1,6 +1,6 @@
 # AI 待办事项管理器
 
-
+[![Database tests](https://github.com/bclder/ai-todo-sqlite/actions/workflows/tests.yml/badge.svg)](https://github.com/bclder/ai-todo-sqlite/actions/workflows/tests.yml)
 
 这是一个使用 Python、DeepSeek API 和 SQLite 开发的待办事项管理项目。
 
