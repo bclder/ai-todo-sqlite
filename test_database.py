@@ -147,5 +147,104 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(len(pending), 2)
         self.assertEqual(pending[0]["id"], earlier["id"])
         self.assertEqual(pending[1]["id"], later["id"])
+    def test_add_todo_with_blank_content(self):
+        with self.assertRaises(ValueError) as context:
+            database.add_todo(
+                " ",
+                "2026-12-31"
+            )
+        self.assertEqual(
+            str(context.exception),
+            "待办内容不能为空"
+        )
+        self.assertEqual(
+            database.get_todos(),
+             []
+        )
+    def test_get_todo_with_invalid_ids(self):
+        invalid_ids = ["abc", 0, -1, None]
+
+        for todo_id in invalid_ids:
+            with self.subTest(todo_id=todo_id):
+                with self.assertRaises(ValueError) as context:
+                    database.get_todo(todo_id)
+
+                self.assertEqual(
+                    str(context.exception),
+                    "待办编号必须是正整数"
+                )
+    def test_update_todo_with_blank_content(self):
+        todo = database.add_todo(
+            "原始内容",
+            "2026-12-31"
+        )
+
+        with self.assertRaises(ValueError) as context:
+            database.update_todo(
+                todo["id"],
+                "   ",
+                "2026-12-31"
+            )
+
+        self.assertEqual(
+            str(context.exception),
+            "待办内容不能为空"
+        )
+
+        unchanged_todo = database.get_todo(todo["id"])
+        self.assertEqual(
+            unchanged_todo["content"],
+            "原始内容"
+        )
+    def test_add_todo_with_invalid_deadline_types(self):
+        invalid_deadlines = [None, 20261231]
+
+        for deadline in invalid_deadlines:
+            with self.subTest(deadline=deadline):
+                with self.assertRaises(ValueError) as context:
+                    database.add_todo(
+                        "测试内容",
+                        deadline
+                    )
+
+                self.assertEqual(
+                    str(context.exception),
+                    "截止日期必须是有效的YYYY-MM-DD格式"
+                )
+    def test_update_todo_with_invalid_id(self):
+        with self.assertRaises(ValueError) as context:
+            database.update_todo(
+                "abc",
+                "更新后的内容",
+                "2026-12-31"
+            )
+
+        self.assertEqual(
+            str(context.exception),
+            "待办编号必须是正整数"
+        )
+    def test_update_todo_with_invalid_deadline_type(self):
+        todo = database.add_todo(
+            "原始内容",
+            "2026-12-31"
+        )
+
+        with self.assertRaises(ValueError) as context:
+            database.update_todo(
+                todo["id"],
+                "更新后的内容",
+                None
+            )
+
+        self.assertEqual(
+            str(context.exception),
+            "截止日期必须是有效的YYYY-MM-DD格式"
+        )
+
+        unchanged_todo = database.get_todo(todo["id"])
+        self.assertEqual(
+            unchanged_todo["content"],
+            "原始内容"
+        )
 if __name__ == "__main__":
     unittest.main()
