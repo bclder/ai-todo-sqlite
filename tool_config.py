@@ -5,7 +5,8 @@ from database import (
     complete_todo,
     delete_todo,
     get_pending_todos,
-    update_todo
+    update_todo,
+    search_todos
 )
 
 available_functions = {
@@ -15,7 +16,8 @@ available_functions = {
     "complete_todo":complete_todo,
     "delete_todo":delete_todo,
     "get_pending_todos":get_pending_todos,
-    "update_todo": update_todo
+    "update_todo": update_todo,
+    "search_todos": search_todos
 }
 
 tools = [
@@ -143,8 +145,26 @@ tools = [
                 "required": ["todo_id", "content", "deadline"]
                 }
             }
+        },
+        {
+        "type": "function",
+        "function": {
+            "name": "search_todos",
+            "description": "根据关键词搜索待办事项",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "keyword": {
+                        "type": "string",
+                        "description": "搜索关键词"
+                    }
+                },
+                "required": ["keyword"]
+            }
         }
-        ]
+    },
+    ]
+
 if __name__ == "__main__":
     print(available_functions.keys())
 
