@@ -246,5 +246,75 @@ class DatabaseTests(unittest.TestCase):
             unchanged_todo["content"],
             "原始内容"
         )
+    def test_search_todos_by_keyword(self):
+        database.add_todo(
+            "学习 Python",
+            "2026-12-01"
+        )
+        database.add_todo(
+            "购买牛奶",
+            "2026-12-02"
+        )
+        database.add_todo(
+            "复习 Python 测试",
+            "2026-12-03"
+        )
+
+        results = database.search_todos("Python")
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(
+            [todo["content"] for todo in results],
+            ["学习 Python", "复习 Python 测试"]
+        )
+    def test_search_todos_by_keyword(self):
+        database.add_todo(
+            "学习 Python",
+            "2026-12-01"
+        )
+        database.add_todo(
+            "购买牛奶",
+            "2026-12-02"
+        )
+        database.add_todo(
+            "复习 Python 测试",
+            "2026-12-03"
+        )
+
+        results = database.search_todos("Python")
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(
+            [todo["content"] for todo in results],
+            ["学习 Python", "复习 Python 测试"]
+        )
+    def test_search_todos_with_no_match(self):
+        database.add_todo("购买牛奶", "2026-12-01")
+
+        results = database.search_todos("Python")
+
+        self.assertEqual(results, [])
+    def test_search_todos_with_invalid_keywords(self):
+        invalid_keywords = ["", "   ", None, 123]
+
+        for keyword in invalid_keywords:
+            with self.subTest(keyword=keyword):
+                with self.assertRaises(ValueError) as context:
+                    database.search_todos(keyword)
+
+                self.assertEqual(
+                    str(context.exception),
+                    "搜索关键词不能为空"
+                )
+    def test_search_todos_with_percent_sign(self):
+        database.add_todo("完成进度达到50%", "2026-12-01")
+        database.add_todo("购买牛奶", "2026-12-02")
+
+        results = database.search_todos("%")
+
+        self.assertEqual(
+            [todo["content"] for todo in results],
+            ["完成进度达到50%"]
+        )
 if __name__ == "__main__":
     unittest.main()

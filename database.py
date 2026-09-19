@@ -219,6 +219,28 @@ def update_todo(todo_id, content, deadline):
         raise ValueError("待办编号不存在")
 
     return get_todo(todo_id)
+def search_todos(keyword):
+    if not isinstance(keyword, str) or not keyword.strip():
+        raise ValueError("搜索关键词不能为空")
+    keyword = keyword.strip()
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT id, content, status, deadline
+            FROM todos
+            WHERE instr(content, ?) > 0
+            ORDER BY id ASC
+            """,
+            (keyword,)
+        )
+        rows = cursor.fetchall()
+        result = [dict(row) for row in rows]
+    finally:
+        cursor.close()
+        conn.close()
+    return result
 
 if __name__ == "__main__":
     create_database()
