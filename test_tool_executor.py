@@ -85,6 +85,33 @@ class ToolExecutorTests(unittest.TestCase):
                 "error": "搜索关键词不能为空"
             }
         )
-    
+    def test_reject_non_object_arguments(self):
+        invalid_arguments = ["[]", "null", "123", '"hello"']
+
+        for arguments in invalid_arguments:
+            with self.subTest(arguments=arguments):
+                fake_search = Mock()
+
+                tool_call = SimpleNamespace(
+                    function=SimpleNamespace(
+                        name="search_todos",
+                        arguments=arguments,
+                    )
+                )
+
+                with patch.dict(
+                    "tool_executor.available_functions",
+                    {"search_todos": fake_search},
+                ):
+                    result = execute_tool_call(tool_call)
+
+                self.assertEqual(
+                    result,
+                    {
+                        "success": False,
+                        "error": "工具参数必须是 JSON 对象",
+                    },
+                )
+                fake_search.assert_not_called()
 if __name__ == "__main__":
     unittest.main()
