@@ -3,28 +3,9 @@ import sys
 from openai import OpenAI
 import json
 from database import create_database
-from tool_config import tools, available_functions
+from tool_config import tools
+from tool_executor import execute_tool_call
 from datetime import date
-
-def execute_tool_call(tool_call):
-    try:
-        arguments=json.loads(tool_call.function.arguments)
-        print("模型选择的函数：", tool_call.function.name)
-        print("模型提供的参数：", arguments)
-        function = available_functions.get(tool_call.function.name)
-        if function is None:
-            raise ValueError(
-            f"无法执行未知工具：{tool_call.function.name}")
-        result = {
-            "success":True,
-            "data":function(**arguments)
-            }
-    except Exception as error:
-        result = {
-            "success": False,
-            "error": str(error)
-        }
-    return result
 
 api_key = os.environ.get("DEEPSEEK_API_KEY")
 
