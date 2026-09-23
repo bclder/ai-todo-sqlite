@@ -1,4 +1,6 @@
 import unittest
+from datetime import date
+from unittest.mock import patch
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -19,6 +21,67 @@ class DatabaseTests(unittest.TestCase):
     def tearDown(self):
         database.DATA_FILE = self.original_data_file
         self.temp_dir.cleanup()
+
+    def test_deadline_is_normalized_on_add_and_update(self):
+        todo = database.add_todo("日期测试", "2026-9-4")
+        self.assertEqual(todo["deadline"], "2026-09-04")
+        self.assertEqual(database.get_todo(todo["id"])["deadline"], "2026-09-04")
+        updated = database.update_todo(todo["id"], "日期测试", "2026-1-2")
+        self.assertEqual(updated["deadline"], "2026-01-02")
+        self.assertEqual(database.get_todo(todo["id"])["deadline"], "2026-01-02")
+
+    def test_get_overdue_todos_filters_and_sorts(self):
+        later = database.add_todo("昨天", "2026-09-23")
+        earlier = database.add_todo("更早", "2026-08-31")
+        database.add_todo("今天", "2026-09-24")
+        database.add_todo("明天", "2026-09-25")
+        completed = database.add_todo("已完成", "2026-08-01")
+        database.complete_todo(completed["id"])
+        with patch("database.date") as fake_date:
+            fake_date.today.return_value = date(2026, 9, 24)
+            self.assertEqual(database.get_overdue_todos(), [earlier, later])
+
+    def test_get_overdue_todos_with_no_matches(self):
+        with patch("database.date") as fake_date:
+            fake_date.today.return_value = date(2026, 9, 24)
+            self.assertEqual(database.get_overdue_todos(), [])
+            database.add_todo("今天", "2026-09-24")
+            database.add_todo("未来", "2026-10-01")
+            completed = database.add_todo("已完成", "2026-09-01")
+            database.complete_todo(completed["id"])
+            self.assertEqual(database.get_overdue_todos(), [])
+
+    def test_get_overdue_todos_reads_today_each_time(self):
+        todo = database.add_todo("今天到期", "2026-09-24")
+        with patch("database.date") as fake_date:
+            fake_date.today.side_effect = [date(2026, 9, 24), date(2026, 9, 25)]
+            self.assertEqual(database.get_overdue_todos(), [])
+            self.assertEqual(database.get_overdue_todos(), [todo])
+
+    def test_get_overdue_todos_preserves_legacy_dates(self):
+        conn = database.get_connection()
+        try:
+            conn.executemany(
+                "INSERT INTO todos (content, status, deadline) VALUES (?, ?, ?)",
+                [
+                    ("九月", "未完成", "2026-9-4"),
+                    ("十月", "未完成", "2026-10-1"),
+                    ("二月", "未完成", "2026-2-3"),
+                    ("今天", "未完成", "2026-10-2"),
+                    ("未来", "未完成", "2026-11-1"),
+                    ("已完成", "已完成", "2026-1-1"),
+                ],
+            )
+            conn.commit()
+        finally:
+            conn.close()
+        before = database.get_todos()
+        with patch("database.date") as fake_date:
+            fake_date.today.return_value = date(2026, 10, 2)
+            self.assertEqual(
+                database.get_overdue_todos(), [before[2], before[0], before[1]]
+            )
+        self.assertEqual(database.get_todos(), before)
 
     def test_get_todos_with_optional_status(self):
         pending = database.add_todo("未完成任务", "2026-12-31")

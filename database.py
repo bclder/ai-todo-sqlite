@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-from datetime import datetime
+from datetime import date, datetime
 
 
 DATA_FILE = Path(__file__).with_name("todos.db")
@@ -22,11 +22,11 @@ def _validate_deadline(deadline):
         raise ValueError("截止日期必须是有效的YYYY-MM-DD格式")
 
     try:
-        datetime.strptime(deadline, "%Y-%m-%d")
+        parsed_deadline = datetime.strptime(deadline, "%Y-%m-%d")
     except ValueError:
         raise ValueError("截止日期必须是有效的YYYY-MM-DD格式")
 
-    return deadline
+    return parsed_deadline.date().isoformat()
 def get_connection():
     conn = sqlite3.connect(DATA_FILE)
     conn.row_factory = sqlite3.Row
@@ -106,6 +106,17 @@ def get_todos(status=None):
         cursor.close()
         conn.close()
     return result
+
+def get_overdue_todos():
+    today = date.today()
+    overdue = []
+    for todo in get_todos("未完成"):
+        deadline = datetime.strptime(todo["deadline"], "%Y-%m-%d").date()
+        if deadline < today:
+            overdue.append((deadline, todo))
+    overdue.sort(key=lambda item: item[0])
+    return [todo for deadline, todo in overdue]
+
 
 def get_todo(todo_id):
     todo_id = _validate_todo_id(todo_id)

@@ -5,6 +5,7 @@ from database import (
     complete_todo,
     delete_todo,
     get_pending_todos,
+    get_overdue_todos,
     update_todo,
     search_todos
 )
@@ -16,11 +17,24 @@ available_functions = {
     "complete_todo":complete_todo,
     "delete_todo":delete_todo,
     "get_pending_todos":get_pending_todos,
+    "get_overdue_todos": get_overdue_todos,
     "update_todo": update_todo,
     "search_todos": search_todos
 }
 
 tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_overdue_todos",
+            "description": "查询截止日期早于今天且未完成的逾期待办，今天到期不算逾期，按截止日期升序排列",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
     {
         "type": "function",
         "function": {

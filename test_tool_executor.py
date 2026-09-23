@@ -3,9 +3,37 @@ import json
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 from tool_executor import execute_tool_call
+import database
+import tool_config
 
 
 class ToolExecutorTests(unittest.TestCase):
+    def test_overdue_tool_definition_and_mapping(self):
+        definitions = [
+            tool["function"] for tool in tool_config.tools
+            if tool["function"]["name"] == "get_overdue_todos"
+        ]
+        self.assertEqual(len(definitions), 1)
+        self.assertEqual(definitions[0]["parameters"]["properties"], {})
+        self.assertEqual(definitions[0]["parameters"]["required"], [])
+        self.assertIs(
+            tool_config.available_functions["get_overdue_todos"],
+            database.get_overdue_todos,
+        )
+
+    def test_overdue_tool_called_without_arguments(self):
+        expected = [{"id": 1, "deadline": "2026-09-01", "status": "未完成"}]
+        fake_get = Mock(return_value=expected)
+        tool_call = SimpleNamespace(function=SimpleNamespace(
+            name="get_overdue_todos", arguments="{}"
+        ))
+        with patch.dict(
+            "tool_executor.available_functions", {"get_overdue_todos": fake_get}
+        ):
+            result = execute_tool_call(tool_call)
+        fake_get.assert_called_once_with()
+        self.assertEqual(result, {"success": True, "data": expected})
+
     def test_get_todos_passes_status(self):
         for status in ("已完成", "未完成", None):
             with self.subTest(status=status):
