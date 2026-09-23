@@ -46,10 +46,16 @@ tools = [
         "type": "function",
         "function": {
             "name": "get_todos",
-            "description": "查看所有待办事项",
+            "description": "查看待办事项，可按完成状态筛选；不传状态时返回全部",
             "parameters": {
                 "type": "object",
-                "properties": {},
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": ["已完成", "未完成"],
+                        "description": "可选的完成状态"
+                    }
+                },
                 "required": []
                 }
             }

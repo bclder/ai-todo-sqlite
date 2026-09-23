@@ -20,6 +20,29 @@ class DatabaseTests(unittest.TestCase):
         database.DATA_FILE = self.original_data_file
         self.temp_dir.cleanup()
 
+    def test_get_todos_with_optional_status(self):
+        pending = database.add_todo("未完成任务", "2026-12-31")
+        completed = database.add_todo("已完成任务", "2026-10-01")
+        completed = database.complete_todo(completed["id"])
+
+        self.assertEqual(database.get_todos(), [pending, completed])
+        self.assertEqual(database.get_todos(None), [pending, completed])
+        self.assertEqual(database.get_todos("未完成"), [pending])
+        self.assertEqual(database.get_todos("已完成"), [completed])
+
+    def test_get_todos_with_no_matching_status(self):
+        todo = database.add_todo("任务", "2026-12-31")
+        self.assertEqual(database.get_todos("已完成"), [])
+        database.complete_todo(todo["id"])
+        self.assertEqual(database.get_todos("未完成"), [])
+
+    def test_get_todos_with_invalid_status(self):
+        for status in ("", "全部", " 已完成 ", 0, True, [], {}):
+            with self.subTest(status=status):
+                with self.assertRaises(ValueError) as context:
+                    database.get_todos(status)
+                self.assertEqual(str(context.exception), "状态必须是已完成或未完成")
+
     def test_add_and_get_todo(self):
         added = database.add_todo(
             "自动化测试",
