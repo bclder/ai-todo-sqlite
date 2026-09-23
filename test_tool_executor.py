@@ -1,10 +1,30 @@
 import unittest
+import json
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 from tool_executor import execute_tool_call
 
 
 class ToolExecutorTests(unittest.TestCase):
+    def test_get_todos_passes_status(self):
+        for status in ("已完成", "未完成", None):
+            with self.subTest(status=status):
+                expected_data = [{"id": 1, "status": status}]
+                fake_get = Mock(return_value=expected_data)
+                tool_call = SimpleNamespace(
+                    function=SimpleNamespace(
+                        name="get_todos",
+                        arguments=json.dumps({"status": status}),
+                    )
+                )
+                with patch.dict(
+                    "tool_executor.available_functions",
+                    {"get_todos": fake_get},
+                ):
+                    result = execute_tool_call(tool_call)
+                fake_get.assert_called_once_with(status=status)
+                self.assertEqual(result, {"success": True, "data": expected_data})
+
     def test_unknown_tool(self):
         tool_call = SimpleNamespace(
             function=SimpleNamespace(

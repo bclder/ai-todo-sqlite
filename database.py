@@ -84,16 +84,22 @@ def add_todo(content, deadline):
         "deadline": deadline
     }
 
-def get_todos():
+def get_todos(status=None):
+    if status is not None and status not in ("已完成", "未完成"):
+        raise ValueError("状态必须是已完成或未完成")
+
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute(
-            """
+        query = """
             SELECT id, content, status, deadline
             FROM todos
             """
-        )
+        parameters = ()
+        if status is not None:
+            query += " WHERE status = ?"
+            parameters = (status,)
+        cursor.execute(query, parameters)
         rows = cursor.fetchall()
         result = [dict(row) for row in rows]
     finally:
