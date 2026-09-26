@@ -43,3 +43,12 @@ def run_turn(client, messages, max_api_calls=5):
             return
 
     print("本轮API调用次数达到上限，任务已停止")
+    stop_message = (
+    "本轮已达到请求次数上限，尚未生成最终答复。"
+    "此前工具调用已执行并返回结果。"
+    )
+    print(stop_message)
+    messages.append({
+        "role": "assistant",
+        "content": stop_message,
+    })
