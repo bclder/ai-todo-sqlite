@@ -1,4 +1,5 @@
 import json
+from database import get_todo
 from tool_config import available_functions
 
 def execute_tool_call(tool_call):
@@ -12,6 +13,19 @@ def execute_tool_call(tool_call):
         if function is None:
             raise ValueError(
             f"无法执行未知工具：{tool_call.function.name}")
+        if tool_call.function.name == "delete_todo":
+            todo = get_todo(**arguments)
+            if todo is None:
+                raise ValueError("待办编号不存在")
+            confirmation = input(
+                f"确认删除待办 {todo['id']}：{todo['content']}？输入 y 删除，其他输入取消："
+            )
+            if confirmation != "y":
+                return {
+                    "success": False,
+                    "cancelled": True,
+                    "error": "用户取消删除，待办未删除",
+                }
         result = {
             "success":True,
             "data":function(**arguments)
