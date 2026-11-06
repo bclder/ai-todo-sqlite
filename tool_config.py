@@ -7,7 +7,8 @@ from database import (
     get_pending_todos,
     get_overdue_todos,
     update_todo,
-    search_todos
+    search_todos,
+    get_todo_stats
 )
 
 available_functions = {
@@ -19,7 +20,9 @@ available_functions = {
     "get_pending_todos":get_pending_todos,
     "get_overdue_todos": get_overdue_todos,
     "update_todo": update_todo,
-    "search_todos": search_todos
+    "search_todos": search_todos,
+    "get_todo_stats": get_todo_stats
+    
 }
 
 tools = [
@@ -55,8 +58,8 @@ tools = [
                 "required": ["content", "deadline"]
                 }
             }
-        },
-        {
+    },
+    {
         "type": "function",
         "function": {
             "name": "get_todos",
@@ -73,8 +76,8 @@ tools = [
                 "required": []
                 }
             }
-        },
-        {
+    },
+    {
         "type": "function",
         "function": {
             "name": "get_todo",
@@ -91,8 +94,8 @@ tools = [
                 "required": ["todo_id"]
                 }
             }
-        },
-        {
+    },
+    {
         "type": "function",
         "function": {
             "name": "complete_todo",
@@ -109,8 +112,8 @@ tools = [
                 "required": ["todo_id"]
                 }
             }
-        },
-        {
+    },
+    {
         "type": "function",
         "function": {
             "name": "delete_todo",
@@ -127,8 +130,8 @@ tools = [
                 "required": ["todo_id"]
                 }
             }
-        },
-        {
+    },
+    {
         "type": "function",
         "function": {
             "name": "get_pending_todos",
@@ -139,8 +142,8 @@ tools = [
                 "required": []
                 }
             }
-        },
-        {
+    },
+    {
         "type": "function",
         "function": {
             "name": "update_todo",
@@ -165,8 +168,8 @@ tools = [
                 "required": ["todo_id", "content", "deadline"]
                 }
             }
-        },
-        {
+    },
+    {
         "type": "function",
         "function": {
             "name": "search_todos",
@@ -183,6 +186,19 @@ tools = [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_todo_stats",
+            "description": "统计全部待办、未完成待办和已完成待办的数量",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+
     ]
 
 if __name__ == "__main__":
