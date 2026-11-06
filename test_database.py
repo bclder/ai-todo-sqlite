@@ -402,5 +402,21 @@ class DatabaseTests(unittest.TestCase):
             [todo["content"] for todo in results],
             ["完成进度达到50%"]
         )
+    def test_get_todo_stats(self):
+        database.add_todo("学习 Python", "2026-12-01")
+        database.add_todo("购买牛奶", "2026-12-02")
+        database.add_todo("复习 Python 测试", "2026-12-03")
+        database.complete_todo(1)
+
+        self.assertEqual(
+            database.get_todo_stats(),
+            {"total": 3, "pending": 2, "completed": 1}
+        )
+
+    def test_get_todo_stats_with_no_todos(self):
+        self.assertEqual(
+            database.get_todo_stats(),
+            {"total": 0, "pending": 0, "completed": 0}
+        )
 if __name__ == "__main__":
     unittest.main()

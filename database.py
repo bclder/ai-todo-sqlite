@@ -259,6 +259,15 @@ def search_todos(keyword):
         conn.close()
     return result
 
+def get_todo_stats():
+    completed = len(get_todos(status="已完成"))
+    unfinished = len(get_todos(status="未完成"))
+    return {
+        "total": completed + unfinished,
+        "pending": unfinished,
+        "completed": completed
+    }
+
 if __name__ == "__main__":
     create_database()
     print("数据库初始化完成")
