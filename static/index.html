@@ -1,0 +1,49 @@
+<body>
+    <h1>我的待办事项</h1>
+    <button id="refresh-button" type="button">刷新待办</button>
+    <p id="message">正在加载……</p>
+    <ul id="todo-list"></ul>
+
+    <script>
+        async function loadTodos() {
+            const message = document.getElementById("message");
+            const list = document.getElementById("todo-list");
+            const refreshButton = document.getElementById("refresh-button");
+
+            refreshButton.disabled = true;
+            message.textContent = "正在加载……";
+
+            try {
+                const response = await fetch("/todos");
+
+                if (!response.ok) {
+                    throw new Error("获取待办失败");
+                }
+
+                const todos = await response.json();
+
+                list.replaceChildren();
+
+                for (const todo of todos) {
+                    const item = document.createElement("li");
+                    item.textContent =
+                        `${todo.content}｜${todo.status}｜截止日期：${todo.deadline}`;
+                    list.appendChild(item);
+                }
+
+                message.textContent =
+                    todos.length === 0 ? "暂无待办事项" : `共 ${todos.length} 条待办`;
+            } catch (error) {
+                message.textContent = "加载失败，请检查服务是否正常运行。";
+                console.error(error);
+                list.replaceChildren()
+            }finally {
+                refreshButton.disabled = false;
+            }
+        }
+
+        refreshButton.addEventListener("click", loadTodos);
+
+        loadTodos();
+    </script>
+</body>
