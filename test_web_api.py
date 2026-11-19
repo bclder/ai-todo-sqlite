@@ -84,3 +84,11 @@ class WebApiTests(unittest.TestCase):
         fake_stats.assert_called_once_with()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
+
+    def test_home_returns_html(self):
+        with TestClient(app) as client:
+            response = client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/html", response.headers["content-type"])
+        self.assertIn("我的待办事项", response.text)

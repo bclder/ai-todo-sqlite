@@ -1,7 +1,16 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 import database
 
 app = FastAPI()
+
+
+@app.get("/")
+def home():
+    html_path = Path(__file__).resolve().parent / "static" / "index.html"
+    return FileResponse(html_path)
 
 
 @app.get("/health")
