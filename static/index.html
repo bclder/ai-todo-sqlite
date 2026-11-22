@@ -1,20 +1,35 @@
 <body>
     <h1>我的待办事项</h1>
+    <label for="status-filter">状态：</label>
+    <select id="status-filter">
+        <option value="">全部</option>
+        <option value="未完成">未完成</option>
+        <option value="已完成">已完成</option>
+    </select>
     <button id="refresh-button" type="button">刷新待办</button>
     <p id="message">正在加载……</p>
     <ul id="todo-list"></ul>
 
     <script>
+        const refreshButton = document.getElementById("refresh-button");
+        const statusFilter = document.getElementById("status-filter");
         async function loadTodos() {
             const message = document.getElementById("message");
             const list = document.getElementById("todo-list");
-            const refreshButton = document.getElementById("refresh-button");
 
             refreshButton.disabled = true;
+            statusFilter.disabled = true; 
             message.textContent = "正在加载……";
 
             try {
-                const response = await fetch("/todos");
+                const status = statusFilter.value;
+                let url = "/todos";
+
+                if (status !== "") {
+                    url = `/todos?status=${encodeURIComponent(status)}`;
+                }
+
+                const response = await fetch(url);
 
                 if (!response.ok) {
                     throw new Error("获取待办失败");
@@ -39,10 +54,12 @@
                 list.replaceChildren()
             }finally {
                 refreshButton.disabled = false;
+                statusFilter.disabled = false;
             }
         }
 
         refreshButton.addEventListener("click", loadTodos);
+        statusFilter.addEventListener("change", loadTodos);
 
         loadTodos();
     </script>
