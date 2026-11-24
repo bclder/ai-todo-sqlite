@@ -1,11 +1,14 @@
 from pathlib import Path
-
+from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 import database
 
 app = FastAPI()
 
+class TodoCreate(BaseModel):
+    content: str
+    deadline: str
 
 @app.get("/")
 def home():
@@ -30,3 +33,16 @@ def list_todos(status: str | None = None):
 @app.get("/todos/stats")
 def todo_stats():
     return database.get_todo_stats()
+
+@app.post("/todos", status_code=201)
+def create_todo(todo: TodoCreate):
+    try:
+        return database.add_todo(
+            content=todo.content,
+            deadline=todo.deadline
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )

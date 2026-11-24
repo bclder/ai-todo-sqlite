@@ -1,5 +1,21 @@
 <body>
     <h1>我的待办事项</h1>
+    <form id="add-todo-form">
+        <p>
+            <label for="todo-content">待办内容：</label>
+            <input id="todo-content" type="text" required>
+        </p>
+
+        <p>
+            <label for="todo-deadline">截止日期：</label>
+            <input id="todo-deadline" type="date" required>
+        </p>
+
+        <button id="add-button" type="submit">添加待办</button>
+    </form>
+
+    <p id="add-message"></p>
+
     <label for="status-filter">状态：</label>
     <select id="status-filter">
         <option value="">全部</option>
@@ -13,6 +29,11 @@
     <script>
         const refreshButton = document.getElementById("refresh-button");
         const statusFilter = document.getElementById("status-filter");
+        const addForm = document.getElementById("add-todo-form");
+        const contentInput = document.getElementById("todo-content");
+        const deadlineInput = document.getElementById("todo-deadline");
+        const addMessage = document.getElementById("add-message");
+        const addButton = document.getElementById("add-button");
         async function loadTodos() {
             const message = document.getElementById("message");
             const list = document.getElementById("todo-list");
@@ -51,8 +72,8 @@
             } catch (error) {
                 message.textContent = "加载失败，请检查服务是否正常运行。";
                 console.error(error);
-                list.replaceChildren()
-            }finally {
+                list.replaceChildren();
+            } finally {
                 refreshButton.disabled = false;
                 statusFilter.disabled = false;
             }
@@ -60,6 +81,54 @@
 
         refreshButton.addEventListener("click", loadTodos);
         statusFilter.addEventListener("change", loadTodos);
+        addForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            if (addButton.disabled) {
+                return;
+            }
+
+            const content = contentInput.value;
+            const deadline = deadlineInput.value;
+
+            addButton.disabled = true;
+            addMessage.textContent = "正在添加……";
+
+            try {
+                const response = await fetch("/todos", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        deadline: deadline
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorMessage =
+                        typeof result.detail === "string"
+                            ? result.detail
+                            : "添加失败，请检查输入内容";
+
+                    throw new Error(errorMessage);
+                }
+
+                addMessage.textContent = `添加成功：${result.content}`;
+                addForm.reset();
+
+                await loadTodos();
+            } catch (error) {
+                addMessage.textContent = `添加失败：${error.message}`;
+                console.error(error);
+            } finally {
+                addButton.disabled = false;
+            }
+        });
+
 
         loadTodos();
     </script>
