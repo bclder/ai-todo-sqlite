@@ -157,3 +157,49 @@ class WebApiTests(unittest.TestCase):
 
             self.assertEqual(response.status_code, 422)
             fake_add.assert_not_called()
+
+    def test_complete_todo(self):
+        expected = {
+            "id": 3,
+            "content": "学习完成待办接口",
+            "status": "已完成",
+            "deadline": "2026-12-01"
+        }
+
+        with patch(
+            "web_api.database.complete_todo",
+            return_value=expected
+        ) as fake_complete:
+            with TestClient(app) as client:
+                response = client.post("/todos/3/complete")
+
+        fake_complete.assert_called_once_with(todo_id=3)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+    def test_complete_todo_already_completed(self):
+        error_message = "该待办已经完成"
+
+        with patch(
+            "web_api.database.complete_todo",
+            side_effect=ValueError(error_message)
+        ) as fake_complete:
+            with TestClient(app) as client:
+                response = client.post("/todos/3/complete")
+
+        fake_complete.assert_called_once_with(todo_id=3)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {"detail": error_message}
+        )
+
+    def test_complete_todo_with_non_integer_id(self):
+        with patch(
+            "web_api.database.complete_todo"
+        ) as fake_complete:
+            with TestClient(app) as client:
+                response = client.post("/todos/abc/complete")
+
+        self.assertEqual(response.status_code, 422)
+        fake_complete.assert_not_called()

@@ -46,3 +46,13 @@ def create_todo(todo: TodoCreate):
             status_code=400,
             detail=str(error)
         )
+
+@app.post("/todos/{todo_id}/complete")
+def complete_todo(todo_id: int):
+    try:
+        return database.complete_todo(todo_id=todo_id)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
