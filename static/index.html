@@ -64,6 +64,50 @@
                     const item = document.createElement("li");
                     item.textContent =
                         `${todo.content}｜${todo.status}｜截止日期：${todo.deadline}`;
+
+                    if (todo.status === "未完成") {
+                        const completeButton = document.createElement("button");
+                        completeButton.type = "button";
+                        completeButton.textContent = "标记完成";
+                        completeButton.addEventListener("click", async function () {
+                            if (completeButton.disabled) {
+                                return;
+                            }
+
+                            completeButton.disabled = true;
+                            completeButton.textContent = "正在完成……";
+
+                            try {
+                                const response = await fetch(
+                                    `/todos/${todo.id}/complete`,
+                                    {
+                                        method: "POST"
+                                    }
+                                );
+
+                                const result = await response.json();
+
+                                if (!response.ok) {
+                                    const errorMessage =
+                                        typeof result.detail === "string"
+                                            ? result.detail
+                                            : "无法完成该待办";
+
+                                    throw new Error(errorMessage);
+                                }
+
+                                await loadTodos();
+                            } catch (error) {
+                                message.textContent = `标记完成失败：${error.message}`;
+                                console.error(error);
+                            } finally {
+                                completeButton.disabled = false;
+                                completeButton.textContent = "标记完成";
+                            }
+                        });
+                        item.appendChild(completeButton);
+                    }
+
                     list.appendChild(item);
                 }
 
