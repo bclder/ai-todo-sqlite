@@ -56,3 +56,13 @@ def complete_todo(todo_id: int):
             status_code=400,
             detail=str(error)
         )
+
+@app.delete("/todos/{todo_id}")
+def delete_todo(todo_id: int):
+    try:
+        return database.delete_todo(todo_id=todo_id)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
