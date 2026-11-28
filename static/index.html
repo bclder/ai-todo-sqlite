@@ -108,6 +108,54 @@
                         item.appendChild(completeButton);
                     }
 
+                    const deleteButton = document.createElement("button");
+                    deleteButton.type = "button";
+                    deleteButton.textContent = "删除";
+
+                    deleteButton.addEventListener("click", async function () {
+                        if (deleteButton.disabled) {
+                            return;
+                        }
+
+                        const confirmed = window.confirm(
+                            `确定删除“${todo.content}”吗？删除后无法恢复。`
+                        );
+
+                        if (!confirmed) {
+                            return;
+                        }
+
+                        deleteButton.disabled = true;
+                        deleteButton.textContent = "正在删除……";
+
+                        try {
+                            const response = await fetch(`/todos/${todo.id}`, {
+                                method: "DELETE"
+                            });
+
+                            const result = await response.json();
+
+                            if (!response.ok) {
+                                const errorMessage =
+                                    typeof result.detail === "string"
+                                        ? result.detail
+                                        : "无法删除该待办";
+
+                                throw new Error(errorMessage);
+                            }
+
+                            await loadTodos();
+                        } catch (error) {
+                            message.textContent = `删除失败：${error.message}`;
+                            console.error(error);
+                        } finally {
+                            deleteButton.disabled = false;
+                            deleteButton.textContent = "删除";
+                        }
+                    });
+
+                    item.appendChild(deleteButton);
+
                     list.appendChild(item);
                 }
 

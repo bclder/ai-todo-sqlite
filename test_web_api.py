@@ -203,3 +203,43 @@ class WebApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
         fake_complete.assert_not_called()
+
+    def test_delete_todo(self):
+        expected = {
+            "id": 3,
+            "content": "验证删除接口",
+            "status": "未完成",
+            "deadline": "2026-12-01",
+        }
+
+        with patch(
+            "web_api.database.delete_todo",
+            return_value=expected,
+        ) as mock_delete:
+            with TestClient(app) as client:
+                response = client.delete("/todos/3")
+        mock_delete.assert_called_once_with(todo_id=3)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+    def test_delete_todo_not_found(self):
+        with patch(
+            "web_api.database.delete_todo",
+            side_effect=ValueError("待办编号不存在"),
+        ) as mock_delete:
+            with TestClient(app) as client:
+                response = client.delete("/todos/999")
+
+        mock_delete.assert_called_once_with(todo_id=999)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {"detail": "待办编号不存在"},
+        )
+
+    def test_delete_todo_with_invalid_id(self):
+        with patch("web_api.database.delete_todo") as mock_delete:
+            with TestClient(app) as client:
+                response = client.delete("/todos/abc")
+        self.assertEqual(response.status_code, 422)
+        mock_delete.assert_not_called()
